@@ -34,6 +34,20 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
+      - name: zip publish
+        run: Compress-Archive -Path ${{env.DOTNET_ROOT}}/myapp -DestinationPath ${{env.DOTNET_ROOT}}/myapp/publish.zip
+
+      - name: Configure AWS credentials from Test account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: {aws-region}
+
+      - name: Upload to S3
+        run: | 
+          aws s3 cp ./publish s3://ptg-sandbox-bucket/artifact/ --recursive
+
   deploy:
     runs-on: windows-latest
     needs: build
