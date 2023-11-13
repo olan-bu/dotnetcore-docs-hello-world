@@ -26,16 +26,16 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}\myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ${{env.DOTNET_ROOT}}\myapp
 
       - name: zip publish
-        run: Compress-Archive -Path ${{env.DOTNET_ROOT}}/myapp -DestinationPath ${{env.DOTNET_ROOT}}/myapp/publish.zip
+        run: Compress-Archive -Path ${{env.DOTNET_ROOT}}\myapp -DestinationPath ${{env.DOTNET_ROOT}}\myapp\publish.zip
 
       - name: Configure AWS credentials from Test account
         uses: aws-actions/configure-aws-credentials@v1
@@ -46,7 +46,7 @@ jobs:
 
       - name: Upload to S3
         run: | 
-          aws s3 cp ${{env.DOTNET_ROOT}}/myapp/publish.zip s3://ptg-sandbox-bucket/artifact/ --recursive
+          aws s3 cp ${{env.DOTNET_ROOT}}\myapp\publish.zip s3://ptg-sandbox-bucket/artifact/ --recursive
 
   deploy:
     runs-on: windows-latest
