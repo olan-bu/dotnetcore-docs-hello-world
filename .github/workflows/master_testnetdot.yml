@@ -60,7 +60,7 @@ jobs:
         run: |
           aws elasticbeanstalk create-application-version \
           --application-name Test-CICD \
-          --source-bundle S3Bucket="ptg-sandbox-bucket",S3Key="/artifact/publish.zip" \
+          --source-bundle S3Bucket="ptg-sandbox-bucket",S3Key="artifact/publish.zip" \
           --version-label "ver-${{ github.sha }}" \
           --description "commit-sha-${{ github.sha }}"
   
