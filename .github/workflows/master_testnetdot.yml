@@ -26,16 +26,10 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}\myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}\myapp
+        run: dotnet publish -c Release -o ./publish
 
       - name: zip publish
-        run: Compress-Archive -Path ${{env.DOTNET_ROOT}}\myapp -DestinationPath ${{env.DOTNET_ROOT}}\myapp\publish.zip
+        run: Compress-Archive -Path ./publish -DestinationPath ./publish/publish.zip
 
       - name: Configure AWS credentials from Test account
         uses: aws-actions/configure-aws-credentials@v1
@@ -46,26 +40,21 @@ jobs:
 
       - name: Upload to S3
         run: | 
-          aws s3 cp ${{env.DOTNET_ROOT}}\myapp\ s3://ptg-sandbox-bucket/artifact/ --recursive
+          aws s3 cp ./publish s3://ptg-sandbox-bucket/artifact/ --recursive
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: .net-app
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download artifact from build job
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: .net-app
       
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'testnetdot'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_444ED3C6CC1B453C8124E0B11140E3F6 }}
+  #     # - name: Deploy to Azure Web App
+  #     #   id: deploy-to-webapp
+  #     #   uses: azure/webapps-deploy@v2
+  #     #   with:
+  #     #     app-name: 'testnetdot'
+  #     #     slot-name: 'Production'
+  #     #     package: .
+  #     #     publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_444ED3C6CC1B453C8124E0B11140E3F6 }}
